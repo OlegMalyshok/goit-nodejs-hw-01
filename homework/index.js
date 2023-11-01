@@ -1,6 +1,39 @@
-function sum(a, b) {
-  return a + b;
+const { Command } = require("commander");
+
+const Contacts = require("./contacts");
+
+const program = new Command();
+program
+  .option("-a, --action <type>", "choose action")
+  .option("-i, --id <type>", "user id")
+  .option("-n, --name <type>", "user name")
+  .option("-e, --email <type>", "user email")
+  .option("-p, --phone <type>", "user phone");
+
+program.parse(process.argv);
+
+const argv = program.opts();
+
+async function invokeAction({ action, id, name, email, phone }) {
+  switch (action) {
+    case "list":
+      const contacts = await Contacts.listContacts();
+      return console.table(contacts);
+
+    case "get":
+      const contact = await Contacts.getContactById(id);
+      return console.log(contact);
+
+    case "add":
+      const createContact = await Contacts.addContact(name, email, phone);
+      return console.log(createContact);
+
+    case "remove":
+      const removeContact = await Contacts.removeContact(id);
+      return console.log(removeContact);
+
+    default:
+  }
 }
 
-console.log(sum(2, 3));
-console.log(sum(5, 7));
+invokeAction(argv);
